@@ -12,8 +12,8 @@ from prompt_toolkit import prompt
 import config
 from helper import classes, vocabulary
 
-import warnings
-warnings.simplefilter(action='ignore', category=FutureWarning)
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
 
 
 def main():
@@ -60,7 +60,7 @@ def main():
         optimizer = tf.train.AdamOptimizer(learning_rate=1e-3).minimize(loss)
 
         # Accuracy
-        correct = tf.equal(tf.argmax(x, 1), prediction)
+        correct = tf.equal(tf.argmax(y, 1), prediction)
         accuracy = tf.reduce_mean(tf.cast(correct, tf.float32))
 
     # Save model for using later

@@ -8,7 +8,9 @@ import config
 import pickle
 from datetime import datetime
 from more_itertools import chunked
+from collections import deque
 
+import numpy as np
 import pandas as pd
 
 import tensorflow as tf
@@ -46,6 +48,7 @@ def main():
         optimizer = session.graph.get_operation_by_name(nodes['optimizer'])
 
         # Training ...
+        average_accuracy = deque(maxlen=100)
         for epoch in range(1, config.max_train_epoch):
             for i, idxs in enumerate(chunked(range(train_length), 64), 1):
 
@@ -58,9 +61,10 @@ def main():
                 begin_time = datetime.now()
                 eval_list = [optimizer, loss, accuracy]
                 _, l, a = session.run(eval_list, feed_dict={x: x_data, y: y_data, keep_prob: .75})
+                average_accuracy.append(a)
 
-                print '%d - %5d: loss: %.6f, accuracy: %.3f, time: %.2fs' % (
-                    epoch, i, l, a, (datetime.now() - begin_time).total_seconds())
+                print '%d - %5d: loss: %.6f, accuracy: %.3f, average accuracy: %.3f, time: %.2fs' % (
+                    epoch, i, l, a, np.mean(average_accuracy), (datetime.now() - begin_time).total_seconds())
 
                 # Save model
                 saver.save(session, config.model_filename)

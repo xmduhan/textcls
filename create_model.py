@@ -34,7 +34,7 @@ def main():
 
         # Embedding layer
         # embedding_dim = 64
-        embedding = tf.get_variable('embedding', [len(vocabulary), 64])
+        embedding = tf.get_variable('embedding', [len(vocabulary) + 1, 64])
         embedding = tf.nn.embedding_lookup(embedding, x)
 
         # CNN layer

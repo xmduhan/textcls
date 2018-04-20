@@ -8,7 +8,8 @@ import tensorflow.contrib.keras as kr
 classes = pd.read_csv('model/classes.csv', encoding='utf-8')
 vocabulary = pd.read_csv('model/vocabulary.csv', encoding='utf-8')
 charid = dict(vocabulary.set_index('char')['id'])
-classid = dict(classes.set_index('class')['id'])
+class_to_id = dict(classes.set_index('class')['id'])
+id_to_class = dict(classes.set_index('id')['class'])
 
 
 def content_to_vector(content):
@@ -19,4 +20,4 @@ def content_to_vector(content):
 
 def class_to_vector(cls):
     """ """
-    return kr.utils.to_categorical(classid[cls], num_classes=len(classes))[0]
+    return kr.utils.to_categorical(class_to_id[cls], num_classes=len(classes))[0]

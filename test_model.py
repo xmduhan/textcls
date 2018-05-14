@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+from __future__ import division
 import os
 import sys
 import pandas as pd
 import importlib
 from sklearn import metrics
+from tabulate import tabulate
 
 os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
 
@@ -33,8 +35,16 @@ def main():
     df['prediction'] = df['content'].apply(cls.classify)
     print u'(ok)'
 
-    # Print test result
-    print(metrics.classification_report(df['class'], df['prediction']))
+    # Print predicting result
+    print u'Predicting result:'
+    df['success'], df['count'] = (df['prediction'] == df['class']).astype(int), 1
+    result = df.groupby('prediction')[['count', 'success']].sum()
+    result['accuracy'] = result['success'] / result['count']
+    print tabulate(result, headers='keys', tablefmt='psql')
+    print 'Total Accuracy:', result['success'].sum() / result['count'].sum()
+
+    # Print confusion matrix
+    print u'Confusion Matrix:'
     print metrics.confusion_matrix(df['class'], df['prediction'])
 
 

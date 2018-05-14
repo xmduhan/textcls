@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-import config
+import os
 import pickle
 import tensorflow as tf
 
-from helper import content_to_vector, id_to_class
+from . import config
+from . import helper
 
 
 graph = tf.Graph()
@@ -13,11 +14,12 @@ tfcfg = tf.ConfigProto(intra_op_parallelism_threads=config.cpu_to_use)
 session = tf.Session(graph=graph, config=tfcfg)
 with session.graph.as_default():
     # Load model
-    saver = tf.train.import_meta_graph(config.model_filename + '.meta')
-    saver.restore(session, config.model_filename)
+    model_filename = os.path.join(helper.path, 'model')
+    saver = tf.train.import_meta_graph(model_filename + '.meta')
+    saver.restore(session, model_filename)
 
     # Load node information
-    nodes = pickle.load(open(config.nodes_filename, "rU"))
+    nodes = pickle.load(open(os.path.join(helper.path, 'nodes.pk'), "rU"))
     x = session.graph.get_tensor_by_name(nodes['x'])
     keep_prob = session.graph.get_tensor_by_name(nodes['keep_prob'])
     prediction = session.graph.get_tensor_by_name(nodes['prediction'])
@@ -25,6 +27,6 @@ with session.graph.as_default():
 
 def classify(content):
     """ """
-    x_data = [content_to_vector(content)]
+    x_data = [helper.content_to_vector(content)]
     class_id = session.run(prediction, feed_dict={x: x_data, keep_prob: .7})[0]
-    return id_to_class[class_id]
+    return helper.id_to_class[class_id]

@@ -20,10 +20,9 @@ def main():
     """ """
 
     if len(sys.argv) != 2:
-        print 'Invaild argments. Use: python load_vocaublary.py data_path'
+        print 'Invaild argments. Use: python create_model.py data_path'
         return
     path = sys.argv[1]
-
     model_path = os.path.join('model', path)
 
     # Prompt for confirm

@@ -1,12 +1,17 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-import config
+import os
+from . import config
 import pandas as pd
 import tensorflow.contrib.keras as kr
 
-classes = pd.read_csv('model/classes.csv', encoding='utf-8')
-vocabulary = pd.read_csv('model/vocabulary.csv', encoding='utf-8')
+
+path = os.path.dirname(os.path.abspath(__file__))
+
+classes = pd.read_csv(os.path.join(path, 'classes.csv'), encoding='utf-8')
+vocabulary = pd.read_csv(os.path.join(path, 'vocabulary.csv'), encoding='utf-8')
+
 charid = dict(vocabulary.set_index('char')['id'])
 class_to_id = dict(classes.set_index('class')['id'])
 id_to_class = dict(classes.set_index('id')['class'])

@@ -9,32 +9,44 @@ import tensorflow as tf
 
 from prompt_toolkit import prompt
 
-import config
-from helper import classes, vocabulary
+import importlib
 
 import os
+import sys
 os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
 
 
 def main():
     """ """
+
+    if len(sys.argv) != 2:
+        print 'Invaild argments. Use: python load_vocaublary.py data_path'
+        return
+    path = sys.argv[1]
+
+    model_path = os.path.join('model', path)
+
     # Prompt for confirm
     prompt_text = u'Create model will delete model that already exists (y/n)?:'
     if prompt(prompt_text).lower().strip() != 'y':
         print u'quit ...'
         return
 
+    model_path_dot = '.'.join(model_path.split('/'))
+    helper = importlib.import_module('%s.helper' % model_path_dot)
+    config = importlib.import_module('%s.config' % model_path_dot)
+
     # Define the graph
     graph = tf.Graph()
     with graph.as_default():
         # Placenode for data feeding
         x = tf.placeholder(tf.int32, [None, config.max_length])
-        y = tf.placeholder(tf.float32, [None, len(classes)])
+        y = tf.placeholder(tf.float32, [None, len(helper.classes)])
         keep_prob = tf.placeholder(tf.float32)
 
         # Embedding layer
         # embedding_dim = 64
-        embedding = tf.get_variable('embedding', [len(vocabulary) + 1, 64])
+        embedding = tf.get_variable('embedding', [len(helper.vocabulary) + 1, 64])
         embedding = tf.nn.embedding_lookup(embedding, x)
 
         # CNN layer
@@ -49,7 +61,7 @@ def main():
         fully_connected = tf.nn.relu(fully_connected)
 
         # Prediction function
-        logits = tf.layers.dense(fully_connected, len(classes))
+        logits = tf.layers.dense(fully_connected, len(helper.classes))
         prediction = tf.argmax(tf.nn.softmax(logits), 1)
 
         # Loss function
@@ -67,7 +79,7 @@ def main():
     with tf.Session(graph=graph) as session:
         session.run(tf.global_variables_initializer())
         saver = tf.train.Saver(max_to_keep=1)
-        saver.save(session, config.model_filename)
+        saver.save(session, os.path.join(model_path, 'model'))
 
     nodes = {
         'x': x.name,
@@ -78,7 +90,7 @@ def main():
         'optimizer': optimizer.name,
         'accuracy': accuracy.name,
     }
-    pickle.dump(nodes, open(config.nodes_filename, 'wb'))
+    pickle.dump(nodes, open(os.path.join(model_path, 'nodes.pk'), 'wb'))
 
 
 if __name__ == "__main__":

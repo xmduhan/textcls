@@ -10,7 +10,7 @@ from collections import Counter
 def main():
     """ """
     if len(sys.argv) != 2:
-        print 'Invaild argments. Use: python load_vocaublary.py data_path'
+        print 'Invaild argments. Use: python load_metadata.py data_path'
         return
     path = sys.argv[1]
 
@@ -40,6 +40,11 @@ def main():
     classes = train[['class']].drop_duplicates()
     classes['id'] = range(len(classes))
     classes.to_csv(os.path.join(model_path, 'classes.csv'), encoding='utf-8', index=False)
+    print u'(ok)'
+
+    # Copy meta files
+    print u'Copy meta files ..',
+    os.system('cp meta/*.py %s' % model_path)
     print u'(ok)'
 
 

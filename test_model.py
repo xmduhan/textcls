@@ -45,7 +45,7 @@ def main():
 
     # Print confusion matrix
     print u'Confusion Matrix:'
-    print metrics.confusion_matrix(df['class'], df['prediction'])
+    print tabulate(metrics.confusion_matrix(df['class'], df['prediction']))
 
 
 if __name__ == "__main__":

@@ -28,6 +28,7 @@ def main():
     # Load test data
     print u'Loading data ...',
     df = pd.read_csv(os.path.join(data_path, 'test.csv'), encoding='utf-8')
+    df = df.sample(1000)
     print u'(ok)'
 
     # Apply model to predict
@@ -40,12 +41,14 @@ def main():
     df['success'], df['count'] = (df['prediction'] == df['class']).astype(int), 1
     result = df.groupby('prediction')[['count', 'success']].sum()
     result['accuracy'] = result['success'] / result['count']
-    print tabulate(result, headers='keys', tablefmt='psql')
+    result = result.reset_index()
+    result = result[['prediction', 'count', 'success', 'accuracy']]
+    print tabulate(result, headers=result.columns, tablefmt='psql')
     print 'Total Accuracy:', result['success'].sum() / result['count'].sum()
 
     # Print confusion matrix
     print u'Confusion Matrix:'
-    print tabulate(metrics.confusion_matrix(df['class'], df['prediction']))
+    print tabulate(metrics.confusion_matrix(df['class'], df['prediction']), headers=result.index)
 
 
 if __name__ == "__main__":

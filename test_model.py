@@ -28,7 +28,7 @@ def main():
     # Load test data
     print u'Loading data ...',
     df = pd.read_csv(os.path.join(data_path, 'test.csv'), encoding='utf-8')
-    df = df.sample(1000)
+    # df = df.sample(1000)
     print u'(ok)'
 
     # Apply model to predict

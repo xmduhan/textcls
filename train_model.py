@@ -74,7 +74,7 @@ def main():
                 # Feed model
                 begin_time = datetime.now()
                 eval_list = [optimizer, loss, accuracy]
-                _, l, a = session.run(eval_list, feed_dict={x: x_data, y: y_data, keep_prob: .75})
+                _, l, a = session.run(eval_list, feed_dict={x: x_data, y: y_data, keep_prob: config.keep_prob})
                 average_accuracy.append(a)
 
                 print '%d - %5d: loss: %.6f, accuracy: %.3f, average accuracy: %.3f, time: %.2fs' % (

@@ -68,7 +68,7 @@ def main():
         loss = tf.reduce_mean(cross_entropy)
 
         # Optimizer function
-        optimizer = tf.train.AdamOptimizer(learning_rate=1e-3).minimize(loss)
+        optimizer = tf.train.AdamOptimizer(learning_rate=config.learning_rate).minimize(loss)
 
         # Accuracy
         correct = tf.equal(tf.argmax(y, 1), prediction)

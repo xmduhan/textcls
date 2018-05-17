@@ -20,7 +20,7 @@ id_to_class = dict(classes.set_index('id')['class'])
 def content_to_vector(content):
     """ """
     alist = [[charid[c] for c in content if c in charid]]
-    return kr.preprocessing.sequence.pad_sequences(alist, config.max_length)[0]
+    return kr.preprocessing.sequence.pad_sequences(alist, maxlen=config.max_length, truncating='post')[0]
 
 
 def class_to_vector(cls):

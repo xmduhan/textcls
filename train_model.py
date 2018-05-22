@@ -84,10 +84,11 @@ def main():
                 # Print message
                 pbar.set_description(print_format % (
                     epoch, i, np.mean(average_loss), np.mean(average_accuracy), np.nan))
-                # Save model
-                saver.save(session, model_filename)
 
                 if i == len(it):
+                    # Save model
+                    saver.save(session, model_filename)
+
                     # Apply model to test data
                     cls = reload(importlib.import_module('%s.cls' % model_path_dot))
                     test = pd.read_csv(os.path.join(data_path, 'test.csv'), encoding='utf-8')

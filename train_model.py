@@ -5,7 +5,6 @@ from __future__ import division
 
 
 import pickle
-from datetime import datetime
 from more_itertools import chunked
 from collections import deque
 
@@ -15,6 +14,8 @@ import pandas as pd
 import tensorflow as tf
 
 import importlib
+
+from tqdm import tqdm
 
 import sys
 import os
@@ -63,25 +64,40 @@ def main():
 
         # Training ...
         average_accuracy = deque(maxlen=100)
+        average_loss = deque(maxlen=100)
+        print_format = '[%2d - %-4d]: loss: %.6f, train AC(%%): %.3f, test AC(%%): %.3f'
         for epoch in range(1, config.max_train_epoch):
-            for i, idxs in enumerate(chunked(range(train_length), 64), 1):
-
+            # pbar = tqdm(list(enumerate(chunked(range(train_length), 64), 1)), ncols=120, desc=print_format)
+            it = list(enumerate(chunked(range(train_length), 64), 1))
+            pbar = tqdm(it, ncols=120, desc=print_format)
+            for i, idxs in pbar:
                 # Load sample data
                 feed_data = train.loc[idxs]
                 x_data = list(feed_data['content'].apply(helper.content_to_vector))
                 y_data = list(feed_data['class'].apply(helper.class_to_vector))
 
                 # Feed model
-                begin_time = datetime.now()
                 eval_list = [optimizer, loss, accuracy]
                 _, l, a = session.run(eval_list, feed_dict={x: x_data, y: y_data, keep_prob: config.keep_prob})
                 average_accuracy.append(a)
+                average_loss.append(l)
 
-                print '%d - %5d: loss: %.6f, accuracy: %.3f, average accuracy: %.3f, time: %.2fs' % (
-                    epoch, i, l, a, np.mean(average_accuracy), (datetime.now() - begin_time).total_seconds())
-
+                # Print message
+                pbar.set_description(print_format % (
+                    epoch, i, np.mean(average_loss), np.mean(average_accuracy), np.nan))
                 # Save model
                 saver.save(session, model_filename)
+
+                if i == len(it):
+                    # Apply model to test data
+                    cls = reload(importlib.import_module('%s.cls' % model_path_dot))
+                    test = pd.read_csv(os.path.join(data_path, 'test.csv'), encoding='utf-8')
+                    test = test.sample(1000)
+                    test['prediction'] = test['content'].apply(cls.classify)
+                    test['success'], test['count'] = (test['prediction'] == test['class']).astype(int), 1
+                    test_accuracy = test['success'].sum() / test['count'].sum()
+                    pbar.set_description(print_format % (
+                        epoch, i, np.mean(average_loss), np.mean(average_accuracy), test_accuracy))
 
 
 if __name__ == "__main__":

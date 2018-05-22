@@ -67,7 +67,6 @@ def main():
         average_loss = deque(maxlen=100)
         print_format = '[%2d - %-4d]: loss: %.6f, train AC(%%): %.3f, test AC(%%): %.3f'
         for epoch in range(1, config.max_train_epoch):
-            # pbar = tqdm(list(enumerate(chunked(range(train_length), 64), 1)), ncols=120, desc=print_format)
             it = list(enumerate(chunked(range(train_length), 64), 1))
             pbar = tqdm(it, ncols=120, desc=print_format)
             for i, idxs in pbar:

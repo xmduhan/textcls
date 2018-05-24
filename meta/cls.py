@@ -28,5 +28,5 @@ with session.graph.as_default():
 def classify(content):
     """ """
     x_data = [helper.content_to_vector(content)]
-    class_id = session.run(prediction, feed_dict={x: x_data, keep_prob: .7})[0]
+    class_id = session.run(prediction, feed_dict={x: x_data, keep_prob: 1})[0]
     return helper.id_to_class[class_id]

@@ -65,7 +65,7 @@ def main():
         # Training ...
         average_accuracy = deque(maxlen=100)
         average_loss = deque(maxlen=100)
-        print_format = '[ %2d ]: loss: %.6f, train AC(%%): %.3f, test AC(%%): %.3f'
+        print_format = '[ %2d ]: loss: %.4f, train AC(%%): %.2f, test AC(%%): %.2f'
         for epoch in range(1, config.max_train_epoch):
             it = list(enumerate(chunked(range(train_length), 64), 1))
             pbar = tqdm(it, ncols=120, desc=print_format)
@@ -83,7 +83,7 @@ def main():
 
                 # Print message
                 pbar.set_description(print_format % (
-                    epoch, np.mean(average_loss), np.mean(average_accuracy) * 100, np.nan))
+                    epoch, np.mean(average_loss), np.mean(average_accuracy) * 100, 0))
 
                 if i == len(it):
                     # Save model
@@ -92,7 +92,6 @@ def main():
                     # Apply model to test data
                     cls = reload(importlib.import_module('%s.cls' % model_path_dot))
                     test = pd.read_csv(os.path.join(data_path, 'test.csv'), encoding='utf-8')
-                    test = test.sample(1000)
                     test['prediction'] = test['content'].apply(cls.classify)
                     test['success'], test['count'] = (test['prediction'] == test['class']).astype(int), 1
                     test_accuracy = test['success'].sum() / test['count'].sum()
